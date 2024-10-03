@@ -1,0 +1,46 @@
+﻿@page "/mouldgroups"
+
+<PageTitle>Mould Groups</PageTitle>
+
+@using Backend.Modules.Moulds;
+@using Backend.Modules.Moulds.Ent
+@inject MouldService MouldService
+
+<h1>Mould Groups</h1>
+
+
+@if (_isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var grp in groups)
+            {
+                <tr>
+                    <td>@grp.Code</td>
+                    <td>@grp.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool _isLoading = true;
+    private List<MouldGroup>? groups;
+
+    protected override async Task OnInitializedAsync()
+    {
+        groups = await MouldService.GetMouldGroups();
+        _isLoading = false;
+    }
+}

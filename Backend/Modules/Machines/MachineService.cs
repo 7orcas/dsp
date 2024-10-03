@@ -3,35 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Backend.App;
+using Backend.Modules._Base;
 using Backend.Modules.Machines.Ent;
+using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace Backend.Modules.Machines
 {
-    public class MachineService: IMachineService
+    public class MachineService: BaseService, IMachineService
     {
-
         public async Task<List<Machine>> GetMachines()
         {
-            return await Task.Run(() =>
-            {
-                List <Machine> machines = new List<Machine>();
-
-    Thread.Sleep(2000);
-
-                machines.Add(new Machine { 
-                    Code = "M1",
-                    Description = "M1 Description",
-                });
-                machines.Add(new Machine
-                {
-                    Code = "M2",
-                    Description = "M2 Description",
-                });
-                return machines;
-            });
+            List <Machine> machines = new List<Machine>();
+            await Sql.Run(
+                    "SELECT * FROM Machine m" + Sql.AddBaseEntity("m"),
+                    r => {
+                        var m = ReadBaseEntity<Machine>(r);
+                        m.StationPairs = GetInt(r, "StationPairs");
+                        machines.Add(m);
+                    }
+            );
+            return machines;
         }
-
-
-
     }
 }

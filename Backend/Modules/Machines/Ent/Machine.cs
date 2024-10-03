@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Backend.Modules._Base;
 
 namespace Backend.Modules.Machines.Ent
 {
-    public class Machine
+    public class Machine : _BaseEntity
     {
-        public string Code { get; set; }
-        public string Description { get; set; }
-
-
+        public int StationPairs { get; set; }
 
     }
 }

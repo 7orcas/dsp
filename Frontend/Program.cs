@@ -1,4 +1,5 @@
 using Backend.Modules.Machines;
+using Backend.Modules.Moulds;
 using Frontend.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -10,6 +11,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<MachineService>();
+builder.Services.AddSingleton<MouldService>();
 
 var app = builder.Build();
 
