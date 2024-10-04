@@ -1,49 +1,78 @@
 ﻿@page "/machines"
+@inherits BasePage
 
-<PageTitle>Machines</PageTitle>
-
+@using Microsoft.AspNetCore.Components.Web
 @using Backend.Modules.Machines
 @using Backend.Modules.Machines.Ent
+@using Frontend.Pages._App
 @inject MachineService MachineService
+@inject IJSRuntime JS
 
-<h1>Machines</h1>
 
-<p>This component demonstrates fetching data from a service.</p>
+<ErrorBoundary @ref="errorBoundary">
+    <ChildContent>
 
-@if (_isLoading)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Code</th>
-                <th>Description</th>
-                <th>Stations</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var machine in machines)
-            {
-                <tr>
-                    <td>@machine.Code</td>
-                    <td>@machine.Description</td>
-                    <td>@machine.StationPairs</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        <AppTitle title="Machines" PageCode="m01">
+            Direct Soling machines
+        </AppTitle>
+        
+        @if (_isLoading)
+        {
+            <Loading/>
+        }
+        else @if (_isError)
+        {
+            <AppError Message="@exception.Message">
+                @exception
+            </AppError>
+        }
+        
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Stations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var machine in machines)
+                    {
+                        <tr>
+                            <td>@machine.Code</td>
+                            <td>@machine.Description</td>
+                            <td>@machine.StationPairs</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+     </ChildContent>
+    <ErrorContent Context="Error">
+        
+        <p>An error has occurred: @Error.Message</p>
+        <button @onclick="Recover">Recover</button>
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
-    private bool _isLoading = true;
     private List<Machine>? machines;
+
+    private void ThrowException()
+    {
+        throw new InvalidOperationException("This is a test exception.");
+    }
+
+    private void Recover()
+    {
+        errorBoundary.Recover();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        machines = await MachineService.GetMachines();
-        _isLoading = false;
+        Func<Task> lambda = async () => machines =  await MachineService.GetMachines(); 
+        await Run(lambda);
     }
 }

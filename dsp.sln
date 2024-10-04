@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend", "Backend\Backend.csproj", "{8DA15FB2-8ADB-45C0-8A85-6703C0025BC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backend", "Backend\Backend.csproj", "{8DA15FB2-8ADB-45C0-8A85-6703C0025BC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{CB37A7E5-F17A-42DD-BF5A-B2C7268051BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontend", "Frontend\Frontend.csproj", "{CB37A7E5-F17A-42DD-BF5A-B2C7268051BB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8DA15FB2-8ADB-45C0-8A85-6703C0025BC6} = {8DA15FB2-8ADB-45C0-8A85-6703C0025BC6}
 	EndProjectSection

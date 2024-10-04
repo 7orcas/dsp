@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Backend.App;
 using Backend.Modules._Base;
 using Backend.Modules.Machines.Ent;
-using System.Data.SqlClient;
-using Microsoft.Data.SqlClient;
 
 namespace Backend.Modules.Machines
 {

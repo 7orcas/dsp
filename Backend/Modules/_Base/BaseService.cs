@@ -14,6 +14,7 @@ namespace Backend.Modules._Base
             entity.Code = (string)r["Code"];
             entity.Description = GetString(r, "Descr");
             entity.Encoded = GetString(r, "Encoded");
+            //entity.Encoded = (string)r["Encoded"]; // Force Error
             entity.Updated = (DateTime)r["Updated"];
 
             return entity;

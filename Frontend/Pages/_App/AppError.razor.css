@@ -1,0 +1,22 @@
+﻿h1 {
+    color: blue;
+}
+
+h3 {
+    margin-top: 20px;
+    color: red;
+}
+
+.error-content {
+    margin-top: 20px;
+}
+
+.title {
+    text-decoration:underline;
+    margin-bottom: 5px;
+}
+
+.message {
+    font-weight: bold;
+    margin-bottom: 5px;
+}

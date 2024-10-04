@@ -1,17 +1,23 @@
 ﻿@page "/mouldgroups"
+@inherits BasePage
 
-<PageTitle>Mould Groups</PageTitle>
-
+@using Frontend.Pages._App
 @using Backend.Modules.Moulds;
 @using Backend.Modules.Moulds.Ent
 @inject MouldService MouldService
 
-<h1>Mould Groups</h1>
-
+<AppTitle title="Mould Groups" PageCode="mg01">
+</AppTitle>
 
 @if (_isLoading)
 {
-    <p><em>Loading...</em></p>
+    <Loading/>
+}
+else @if (_isError)
+{
+    <AppError Message="@exception.Message">
+        @exception
+    </AppError>
 }
 else
 {
@@ -35,12 +41,11 @@ else
 }
 
 @code {
-    private bool _isLoading = true;
     private List<MouldGroup>? groups;
 
     protected override async Task OnInitializedAsync()
     {
-        groups = await MouldService.GetMouldGroups();
-        _isLoading = false;
+        Func<Task> lambda = async () => groups = await MouldService.GetMouldGroups();
+        await Run(lambda);
     }
 }

@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pages\_App\AppError - Copy.razor.css" />
+    <None Remove="Pages\_App\AppError.razor.css" />
+    <None Remove="Pages\_App\AppTitle.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pages\_App\AppError.razor.css" />
+    <Content Include="Pages\_App\AppTitle.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Backend\Backend.csproj" />
   </ItemGroup>
 

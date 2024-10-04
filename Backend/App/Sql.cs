@@ -15,7 +15,7 @@ namespace Backend.App
             return await Task.Run(() =>
             {
                 
-                // Thread.Sleep(2000);
+Thread.Sleep(2000);
                 var connectionString = "Server=np:localhost;Database=dsp;TrustServerCertificate=True;Authentication=Active Directory Integrated;";
 
                 SqlConnection connection = null;
@@ -33,8 +33,8 @@ namespace Backend.App
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    return false;
+                    Console.WriteLine(ex.Message); //TODO - LogMe
+                    throw;
                 }
                 finally
                 {
