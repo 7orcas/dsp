@@ -1,0 +1,28 @@
+﻿Login
+- Mirgate table names to schema
+- Login to specific page
+
+- Security
+	https://www.youtube.com/watch?v=tNzSuwV62Lw  longer
+	https://www.youtube.com/watch?v=alGGr2mX_7E  shorter
+	Roles management
+
+Lables (language)
+
+
+Common Call Object
+ - with all stuff eg org, roles
+
+Temp Tables
+
+Encoded
+
+Updates
+
+
+Hosting
+- https://www.youtube.com/watch?v=N0nHktwoclg
+
+
+Check out:
+- Codeless migration

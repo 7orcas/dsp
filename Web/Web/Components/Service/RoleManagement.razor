@@ -1,0 +1,43 @@
+﻿@page "/administration/rolemgr"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@inject RoleManager<IdentityRole> RoleManager
+@inject ILogger<RoleManagement> Logger
+@inject IJSRuntime JS
+
+<h3>Role Management</h3>
+
+<button @onclick="ShowAlert">Show Alert</button>
+<button @onclick="CreateAdminRole">Create Admin Role</button>
+<button @onclick="DeleteAdminRole">Delete Admin Role</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("RoleManagement called");
+    }
+
+    private async Task ShowAlert()
+    {
+        await JS.InvokeVoidAsync("showAlert", "This is an alert message!");
+    }
+
+    protected async Task CreateAdminRole()
+    {
+        Logger.LogInformation("CreateAdminRole called");
+        if (!await RoleManager.RoleExistsAsync("Admin"))
+        {
+            var role = new IdentityRole("Admin");
+            await RoleManager.CreateAsync(role);
+        }
+    }
+
+    private async Task DeleteAdminRole()
+    {
+        var role = await RoleManager.FindByNameAsync("Admin");
+        if (role != null)
+        {
+            await RoleManager.DeleteAsync(role);
+        }
+    }
+}
