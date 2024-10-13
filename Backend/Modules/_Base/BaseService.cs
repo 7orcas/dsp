@@ -30,6 +30,11 @@ namespace Backend.Modules._Base
             return (int)r[column];
         }
 
+        public int? GetIdNull(SqlDataReader r, string column)
+        {
+            return r.IsDBNull(r.GetOrdinal(column)) ? (int?)null : (int)r[column];
+        }
+
         public int GetInt(SqlDataReader r, string column)
         {
             return (int)r[column];

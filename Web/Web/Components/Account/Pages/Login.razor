@@ -1,16 +1,20 @@
 ﻿@page "/Account/Login"
 
+@* @rendermode InteractiveServer *@
+
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.AspNetCore.Components
 @using Web.Data
 
 @inject SignInManager<ApplicationUser> SignInManager
+@* @inject UserManager<ApplicationUser> UserManager; *@
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
-@inject IJSRuntime JS
+@* @inject IJSRuntime JS *@
 @inject ILogger<Login> Logger
 
 <PageTitle>Log in</PageTitle>
@@ -69,6 +73,7 @@
 
 @code {
     private string? errorMessage;
+    private string? redirectUrl;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -82,13 +87,19 @@
     protected override async Task OnInitializedAsync()
     {
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+        //User has parameters set
         var queryParams = QueryHelpers.ParseQuery(uri.Query);
         if (queryParams.TryGetValue("userid", out var userid))
             Input.Email = userid;
         if (queryParams.TryGetValue("pw", out var pw))
             Input.Password = pw;
+        if (queryParams.TryGetValue("url", out var url))
+            redirectUrl = url;
+        
+            //Problem with connection
         if (queryParams.TryGetValue("auto", out var auto))
-            AutoLogin();
+            LoginUserAuto();
 
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
@@ -97,21 +108,16 @@
         }
     }
 
-    private async Task AutoLogin()
+    protected async Task LoginUserAuto()
     {
         Logger.LogInformation("AutoLogin called");
 
-        // Introduce a delay 
-        await Task.Delay(2000);
-
-        // Simulate the button click using JavaScript
-        await JS.InvokeVoidAsync("simulateClick", "loginbutton");
+        await Task.Delay(3000);
+        LoginUser();
     }
-
 
     public async Task LoginUser()
     {
-
         Logger.LogInformation("LoginUser called");
 
         // This doesn't count login failures towards account lockout
@@ -120,7 +126,11 @@
         if (result.Succeeded)
         {
             Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+
+            if (!string.IsNullOrEmpty(redirectUrl))
+                RedirectManager.RedirectTo(redirectUrl);
+            else
+                RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.RequiresTwoFactor)
         {
