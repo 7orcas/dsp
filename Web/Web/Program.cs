@@ -1,4 +1,5 @@
 using Backend.App.Labels;
+using Backend.App.Config;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
+builder.Services.AddSingleton<ConfigService>();
 builder.Services.AddSingleton<LabelService>();
 
 builder.Services.AddAuthentication(options =>

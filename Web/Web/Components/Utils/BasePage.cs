@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-namespace Frontend.Pages._App
+namespace Web.Components.Utils
 {
     public class BasePage : ComponentBase
     {

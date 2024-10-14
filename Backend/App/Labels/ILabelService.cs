@@ -4,6 +4,6 @@ namespace Backend.App.Labels
 {
     public interface ILabelService
     {
-        Task<List<Label>> GetLabels();
+        Task<LabelManager> GetLabelManager(int? org);
     }
 }

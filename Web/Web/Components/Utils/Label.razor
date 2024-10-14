@@ -1,57 +1,76 @@
-﻿@using Backend.App.Labels
+﻿
+@using Backend.App.Labels
 @using Backend.App.Labels.Ent
+@using Backend.App.Config
+@using Backend.App.Config.Ent
+@using Web.Components.Utils
 
+@inherits BasePage
 @inject LabelService LabelService
+@inject ConfigService ConfigService
 
-<h3>LabelXX: @ShowLabel()</h3>
+@if (_isLoading)
+{
+    <Loading />
+}
+else
+{
+    @IsNoLabel() @* force a label test*@
+
+    <div>
+        @if (_noKey)
+        {
+            <span style="color:red">
+                @ShowLabel()
+            </span>
+        }
+        else
+        {
+            @ShowLabel()
+        }
+    </div>
+}
 
 @code {
-    private List<Backend.App.Labels.Ent.Label>? labels;
+    private LabelManager? labels;
+    private AppConfig? config;
 
     [Parameter]
     public string Key { get; set; }
 
+    private bool _noKey = false;
+
     protected override async Task OnInitializedAsync()
     {
-        await LoadAsync();
+        Func<Task> lambda = async () => labels = await LabelService.GetLabelManager(null);
+        await Run(lambda);
+
+        lambda = async () => config = await ConfigService.GetAppConfig(null);
+        await Run(lambda);
+
+    }
+
+    private string IsNoLabel()
+    {
+        _noKey = false;
+        if (config.IsLabelLink)
+        {
+            if (!labels.IsLabel(Key))
+                _noKey = true;
+        }
+        return "";
     }
 
     private string ShowLabel()
     {
-        if (labels == null)
+        if (labels == null || config == null)
             return "Loading...";
 
-        foreach (var l in labels)
-        {
-            if (l.Code == Key)
-                return l.Description;
-        }
-
-        if (Key == "123") return "XXX123";
-        return "[" + Key + "]";
-    }
-
-    protected async Task LoadAsync()
-    {
-        Func<Task> lambda = async () => labels = await LabelService.GetLabels();
-        await Run(lambda);
-    }
-
-    public async Task Run(Func<Task> action)
-    {
-        try
-        {
-            await action();
-        }
-        catch (Exception x)
-        {
-            // exception = x;
-            // _isError = true;
-        }
-        finally
-        {
-            // _isLoading = false;
-        }
+        return
+            (_noKey ? "[" : "")
+            + labels.GetLabel(Key)
+            + (_noKey ? "]" : "")
+            ;
     }
 
 }

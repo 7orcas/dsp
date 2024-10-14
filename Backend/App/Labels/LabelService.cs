@@ -1,5 +1,4 @@
-﻿using Backend.App;
-using Backend.App.Labels.Ent;
+﻿using Backend.App.Labels.Ent;
 using Backend.Modules._Base;
 using Microsoft.Data.SqlClient;
 
@@ -7,9 +6,13 @@ namespace Backend.App.Labels
 {
     public class LabelService : BaseService, ILabelService
     {
-        public async Task<List<Label>> GetLabels()
+        private LabelManager? _labelManager;
+
+        public async Task<LabelManager> GetLabelManager(int? org)
         {
-            List <Label> list = new List<Label>();
+            if (_labelManager != null) return _labelManager;
+
+            var list = new List<Label>();
             await Sql.Run(
                     "SELECT * FROM App.Label l",
                     r => {
@@ -17,7 +20,8 @@ namespace Backend.App.Labels
                         list.Add(m);
                     }
             );
-            return list;
+            _labelManager = new LabelManager(list, org);
+            return _labelManager;
         }
 
         private T ReadEntity<T>(SqlDataReader r) where T: Label, new()
