@@ -6,6 +6,7 @@
 @using Web.Components.Utils
 
 @inherits BasePage
+@rendermode InteractiveServer
 @inject LabelService LabelService
 @inject ConfigService ConfigService
 
@@ -28,6 +29,16 @@ else
         {
             @ShowLabel()
         }
+
+        @if (_showLink)
+        {
+            <button class="label-link" @onclick="OpenDialog">*</button>
+        }
+
+        <LabelDialog ShowDialog="@_showModal" Title="@Key">
+            <p>This is the content of the modal dialog.</p>
+        </LabelDialog>
+
     </div>
 }
 
@@ -39,6 +50,8 @@ else
     public string Key { get; set; }
 
     private bool _noKey = false;
+    private bool _showLink = false;
+    private bool _showModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,7 +66,9 @@ else
     private string IsNoLabel()
     {
         _noKey = false;
-        if (config.IsLabelLink)
+        _showLink = config.IsLabelLink;
+
+        if (_showLink)
         {
             if (!labels.IsLabel(Key))
                 _noKey = true;
@@ -71,6 +86,12 @@ else
             + labels.GetLabel(Key)
             + (_noKey ? "]" : "")
             ;
+    }
+
+
+    private void OpenDialog()
+    {
+        _showModal = true;
     }
 
 }

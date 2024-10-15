@@ -1,0 +1,10 @@
+﻿
+.label-link {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: transparent; /* Optional: Makes the background transparent */
+    color: inherit; /* Optional: Inherits the text color from its parent */
+    font: inherit; /* Optional: Inherits the font from its parent */
+    cursor: pointer; /* Optional: Changes the cursor to a pointer */
+}

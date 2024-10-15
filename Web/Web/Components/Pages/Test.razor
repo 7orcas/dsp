@@ -1,4 +1,7 @@
 ﻿@page "/test"
+@rendermode InteractiveServer
+
+@using Web.Components.Utils
 
 <PageTitle>TEST</PageTitle>
 
@@ -10,8 +13,21 @@
 <br />
 <Label Key="Org" />
 
+<br />
+<button class="btn btn-primary" @onclick="OpenDialog">Open ModalX</button>
+
+
+
+<LabelDialog ShowDialog="@showModal" Title="My Modal">
+    <p>This is the content of the modal dialog.</p>
+</LabelDialog>
 
 
 @code {
+    private bool showModal = false;
 
+    private void OpenDialog()
+    {
+        showModal = true;
+    }
 }
