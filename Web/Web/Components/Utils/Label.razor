@@ -24,16 +24,30 @@ else
             <span style="color:red">
                 @ShowLabel()
             </span>
+            @if (_showLink)
+            {
+                <button class="label-link" @onclick="OpenDialog">*</button>
+            }
         }
-        else
+        else if (_showTooltip)
+        {
+            <div data-tooltip="@ShowToolTip()">
+                @ShowLabel()
+                @if (_showLink)
+                {
+                    <button class="label-link" @onclick="OpenDialog">*</button>
+                }
+            </div>
+        }
+        else 
         {
             @ShowLabel()
+            @if (_showLink)
+            {
+                <button class="label-link" @onclick="OpenDialog">*</button>
+            }
         }
 
-        @if (_showLink)
-        {
-            <button class="label-link" @onclick="OpenDialog">*</button>
-        }
 
         <LabelDialog ShowDialog="@_showModal" Title="@Key">
             <p>This is the content of the modal dialog.</p>
@@ -52,15 +66,15 @@ else
     private bool _noKey = false;
     private bool _showLink = false;
     private bool _showModal = false;
+    private bool _showTooltip = false;
 
     protected override async Task OnInitializedAsync()
     {
-        Func<Task> lambda = async () => labels = await LabelService.GetLabelManager(null);
+        Func<Task> lambda = async () => config = await ConfigService.GetAppConfig();
         await Run(lambda);
 
-        lambda = async () => config = await ConfigService.GetAppConfig(null);
+        lambda = async () => labels = await LabelService.GetLabelManager(config.LangCode, config.OrgId);
         await Run(lambda);
-
     }
 
     private string IsNoLabel()
@@ -73,19 +87,24 @@ else
             if (!labels.IsLabel(Key))
                 _noKey = true;
         }
+
+        if (labels.IsTooltip(Key))
+            _showTooltip = true;
         return "";
     }
 
     private string ShowLabel()
     {
-        if (labels == null || config == null)
-            return "Loading...";
-
         return
             (_noKey ? "[" : "")
             + labels.GetLabel(Key)
             + (_noKey ? "]" : "")
             ;
+    }
+
+    private string? ShowToolTip()
+    {
+        return labels.GetTooltip(Key);
     }
 
 

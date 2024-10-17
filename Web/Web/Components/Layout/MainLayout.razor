@@ -1,5 +1,24 @@
 ﻿@inherits LayoutComponentBase
 
+@using Backend.App.Labels
+@using Backend.App.Labels.Ent
+@using Backend.App.Config
+@using Backend.App.Config.Ent
+@inject LabelService LabelService
+@inject ConfigService ConfigService
+
+<div>
+    @if (_isLoading)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        @labelMgr.GetLanguageCode()
+    }
+
+</div>
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -21,3 +40,17 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+
+@code {
+    private LabelManager labelMgr;
+    private AppConfig appConfig;
+    public bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        appConfig = await ConfigService.GetAppConfig("en", 0);
+        labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
+        _isLoading = false;
+    }
+}

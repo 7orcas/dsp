@@ -32,6 +32,7 @@ CREATE TABLE App.Label (
 	Code       NVARCHAR (100)  NOT NULL,
 	_OrgId     INT             NULL,
 	Descr      NVARCHAR (MAX)  NOT NULL,
+	Tooltip    NVARCHAR (MAX)  NULL,
 	Encoded    NVARCHAR (MAX)  NULL,
 	Updated    DATETIME        NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (_OrgId) REFERENCES App.Org(Id)

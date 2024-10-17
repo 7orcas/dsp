@@ -32,7 +32,15 @@ INSERT INTO App.BaseEntity (_OrgId, Descrim, Code,	Descr) OUTPUT INSERTED.Id INT
 INSERT INTO MouldGroup (_Id) VALUES ((select NewId from @NewID));
 DELETE FROM @NewID;
 
-INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('en', '123', '*TEST 123 TEST*') ;
+INSERT INTO App.Label (Lang, Code,	Descr, Tooltip) VALUES ('en', '123', '*EN 123 TEST*', '123 tooltip') ;
+INSERT INTO App.Label (Lang, Code,	Descr, _OrgId, Tooltip) VALUES ('en', '123', '*EN 123 Org=1 TEST*', 1, '123 org 1 tooltip') ;
+INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('de', '123', '*DE 123 TEST*') ;
+
+INSERT INTO App.Label (Lang, Code,	Descr, Tooltip) VALUES ('en', 'yes', 'Yes', 'Yes tooltip') ;
+INSERT INTO App.Label (Lang, Code,	Descr, _OrgId) VALUES ('en', 'yes', 'Ok', 1) ;
+INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('de', 'yes', 'Ja') ;
+
+INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('en', 'no', 'No') ;
 
 
 select * from App.Label

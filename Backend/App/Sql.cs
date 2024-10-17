@@ -15,7 +15,7 @@ namespace Backend.App
             return await Task.Run(() =>
             {
                 
-Thread.Sleep(400);
+//Thread.Sleep(400);
                 var connectionString = "Server=np:localhost;Database=dsp;TrustServerCertificate=True;Authentication=Active Directory Integrated;";
 
                 SqlConnection connection = null;
