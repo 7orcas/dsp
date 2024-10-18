@@ -112,6 +112,13 @@ namespace Backend.App.Labels.Ent
                 Description = "Deutsch"
             });
 
+            list.Add(new LangCode
+            {
+                Id = 3,
+                Code = "es",
+                Description = "Español"
+            });
+
             return list;
         }
 

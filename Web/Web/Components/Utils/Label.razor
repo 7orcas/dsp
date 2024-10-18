@@ -6,7 +6,7 @@
 @using Web.Components.Utils
 
 @inherits BasePage
-@rendermode InteractiveServer
+@* @rendermode InteractiveServer *@
 @inject LabelService LabelService
 @inject ConfigService ConfigService
 
@@ -19,15 +19,15 @@ else
     @IsNoLabel() @* force a label test*@
 
     <div>
-        @if (_noKey)
+        @if (_noKey && _showLink)
         {
-            <span style="color:red">
+            <button class="label-link-nokey" @onclick="OpenDialog">@ShowLabel()</button>
+        }
+        else if (_noKey)
+        {
+            <span class="label-nokey">
                 @ShowLabel()
             </span>
-            @if (_showLink)
-            {
-                <button class="label-link" @onclick="OpenDialog">*</button>
-            }
         }
         else if (_showTooltip)
         {

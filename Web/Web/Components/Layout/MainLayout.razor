@@ -4,8 +4,10 @@
 @using Backend.App.Labels.Ent
 @using Backend.App.Config
 @using Backend.App.Config.Ent
+@using Blazor.Flags
 @inject LabelService LabelService
 @inject ConfigService ConfigService
+@inject NavigationManager Navigation
 
 <div>
     @if (_isLoading)
@@ -25,7 +27,18 @@
     </div>
 
     <main>
+        
         <div class="top-row px-4">
+            @if (!_isLoading)
+            {
+                @foreach (var langCode in @langCodes)
+                {
+                    <button class="lang-flag-link" @onclick='@(() => ChangeLanguage(langCode.Code))'>
+                        <CountryFlag Country="GetCountryFlag(langCode)" Size="FlagSize.Normal" />
+                    </button>
+                }
+                
+            }
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 
@@ -44,6 +57,7 @@
 
 @code {
     private LabelManager labelMgr;
+    private List<LangCode> langCodes;
     private AppConfig appConfig;
     public bool _isLoading = true;
 
@@ -51,6 +65,26 @@
     {
         appConfig = await ConfigService.GetAppConfig("en", 0);
         labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
+        langCodes = LabelManager.GetLanguageCodes();
         _isLoading = false;
+    }
+
+    private async Task ChangeLanguage(string langCode)
+    {
+        appConfig.LangCode = langCode;
+        labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
+        StateHasChanged();
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+
+    private Country GetCountryFlag(LangCode langCode)
+    {
+        switch (langCode.Code)
+        {
+            case "en": return Country.GB;
+            case "de": return Country.DE;
+            case "es": return Country.ES;
+            default: return Country.NZ;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,12 +10,13 @@
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="Web.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
-<script src="js/site.js"></script> <!-- REMOVE? -->
-    <HeadOutlet />
+    <link href="_content/Blazor.Flags/flags.css" rel="stylesheet" />
+    <script src="js/site.js"></script> <!-- REMOVE? -->
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <!-- needed -->
     <script src="_framework/blazor.web.js"></script>
 </body>
