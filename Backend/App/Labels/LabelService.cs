@@ -15,49 +15,52 @@ namespace Backend.App.Labels
                 ) return _labelManager;
 
             //Step 1: get labels for passed in lang code and org
-            var list = new List<Label>();
-            await Sql.Run(
-                    "SELECT l.* FROM App.Label l "
-                    + "WHERE l.Lang = '" + langCode + "' "
-                    + "AND l._OrgId = " + orgId,
-                    r => {
-                        var m = ReadEntity<Label>(r);
-                        list.Add(m);
-                    }
-            );
+            var list = await GetLabelList(langCode, orgId);
             _labelManager = new LabelManager(list, langCode, orgId);
 
             //Step 2: get labels for passed in lang code and null org (default)
-            list = new List<Label>();
-            await Sql.Run(
-                    "SELECT l.* FROM App.Label l "
-                    + "WHERE l.Lang = '" + langCode + "' "
-                    + "AND l._OrgId IS NULL",
+            list = await GetLabelList(langCode, null);
+            _labelManager.AppendList(list, null);
+
+            //Step 3 Optional: get labels for default lang code and default org 
+            var langDefault = LabelManager.GetLanguageCodeDefault();
+            if (langDefault != langCode)
+            {
+                list = await GetLabelList(langDefault, null);
+                _labelManager.AppendList(list, langDefault);
+            }
+
+            return _labelManager;
+        }
+
+        public async Task<List<Label>> GetLabels(string langCode)
+        {
+            var list = await GetLabelList(langCode, null);
+            foreach (var label in list)
+                label.LangCode = langCode;
+            
+            return list;
+        }
+
+        private async Task<List<Label>> GetLabelList(string langCode, int? orgId)
+        {
+            string sql = "SELECT l.* FROM App.Label l "
+                    + "WHERE l.Lang = '" + langCode + "' ";
+
+            if (orgId.HasValue) 
+                sql += "AND l._OrgId = " + orgId;
+
+            //Step 1: get labels for passed in lang code and org
+            var list = new List<Label>();
+            await Sql.Run(sql,
                     r => {
                         var m = ReadEntity<Label>(r);
                         list.Add(m);
                     }
             );
-            _labelManager.AppendList(list, null);
 
+            return list;
 
-            //Step 3 Optional: get labels for default lang code and default org 
-            if (LabelManager.GetLanguageCodeDefault() != langCode)
-            {
-                list = new List<Label>();
-                await Sql.Run(
-                        "SELECT l.* FROM App.Label l "
-                        + "WHERE l.Lang = '" + LabelManager.GetLanguageCodeDefault() + "' "
-                        + "AND l._OrgId IS NULL",
-                        r => {
-                            var m = ReadEntity<Label>(r);
-                            list.Add(m);
-                        }
-                );
-                _labelManager.AppendList(list, LabelManager.GetLanguageCodeDefault());
-            }
-
-            return _labelManager;
         }
 
         private T ReadEntity<T>(SqlDataReader r) where T: Label, new()

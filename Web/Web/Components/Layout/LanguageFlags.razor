@@ -1,6 +1,4 @@
-﻿@inherits LayoutComponentBase
-
-@using Backend.App.Labels
+﻿@using Backend.App.Labels
 @using Backend.App.Labels.Ent
 @using Backend.App.Config
 @using Backend.App.Config.Ent
@@ -12,43 +10,20 @@
 <div>
     @if (_isLoading)
     {
-        <p><em>Loading...</em></p>
+        <Loading />
     }
     else
     {
-        @labelMgr.GetLanguageCode()
-    }
-
-</div>
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        
         <div class="top-row px-4">
-            @if (!_isLoading)
+            @foreach (var langCode in @langCodes)
             {
-                <LanguageFlags />
-                
+                <button class="lang-flag-link" @onclick='@(() => ChangeLanguage(langCode.Code))'>
+                    <CountryFlag Country="GetCountryFlag(langCode)" Size="FlagSize.Normal" />
+                </button>
             }
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    }
 </div>
-
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
-
 
 @code {
     private LabelManager labelMgr;
@@ -58,7 +33,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        appConfig = await ConfigService.GetAppConfig("en", 0);
+        appConfig = await ConfigService.GetAppConfig();
         labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
         langCodes = LabelManager.GetLanguageCodes();
         _isLoading = false;

@@ -59,6 +59,11 @@ namespace Backend.App.Labels.Ent
             return code;
         }
 
+        public void UpdateLabel(Label label)
+        {
+            labels[label.Code] = label;
+        }
+
         public bool IsTooltip(string code)
         {
             return GetTooltip(code) != null;

@@ -1,0 +1,73 @@
+﻿@page "/app/language"
+
+@inherits BasePage
+@inject LabelService LabelService
+@inject ConfigService ConfigService
+
+@using Backend.App.Labels
+@using Backend.App.Labels.Ent
+@using Backend.App.Config
+@using Backend.App.Config.Ent
+
+<h3>Language</h3>
+
+@if (labels == null)
+{
+    <Loading />
+}
+else{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Lang</th>
+                <th>Org</th>
+                <th>Code</th>
+                <th>Label</th>
+                <th>ToolTip</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var label in labels)
+            {
+            <tr>
+                    <td>@label.LangCode</td>
+                    <td>@label._OrgId</td>
+                    <td>@label.Code</td>
+                    <td><InputText id="description" @bind-Value="label.Description" /></td>
+                    <td><InputText id="tooltip" @bind-Value="label.Tooltip" /></td>
+                    <td>
+                        <button @onclick="() => Update(label)">Save</button>
+                    </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    
+}
+
+
+@code {
+    private List<Backend.App.Labels.Ent.Label>? labels;
+    private LabelManager? labelMgr;
+    private AppConfig? config;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Func<Task> lambda = async () => config = await ConfigService.GetAppConfig();
+        await Run(lambda);
+
+        lambda = async () => labels = await LabelService.GetLabels(config.LangCode);
+        await Run(lambda);
+
+        lambda = async () => labelMgr = await LabelService.GetLabelManager(config.LangCode, config.OrgId);
+        await Run(lambda);
+    }
+
+    private void Update(Backend.App.Labels.Ent.Label label)
+    {
+        labelMgr.UpdateLabel(label);
+        
+    }
+
+}
