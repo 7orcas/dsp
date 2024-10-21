@@ -26,7 +26,7 @@ namespace Backend.App.Config
             {
                 OrgId = OrgId,
                 LangCode = langCode,
-                IsLabelLink = true
+                IsLabelLink = false
             };
 
             return _appConfig;

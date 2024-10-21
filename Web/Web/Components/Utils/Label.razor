@@ -16,38 +16,19 @@
 }
 else
 {
-    @IsNoLabel() @* force a label test*@
+    @InitialiseLabel()
 
     <div>
-        @if (_noKey && _showLink)
-        {
-            <button class="label-link-nokey" @onclick="OpenDialog">@ShowLabel()</button>
-        }
-        else if (_noKey)
-        {
-            <span class="label-nokey">
-                @ShowLabel()
-            </span>
-        }
-        else if (_showTooltip)
+        @if (_showTooltip)
         {
             <div data-tooltip="@ShowToolTip()">
-                @ShowLabel()
-                @if (_showLink)
-                {
-                    <button class="label-link" @onclick="OpenDialog">*</button>
-                }
+                <button class="@GetClass()" @onclick="OpenDialog">@ShowLabel()</button>
             </div>
         }
         else 
         {
-            @ShowLabel()
-            @if (_showLink)
-            {
-                <button class="label-link" @onclick="OpenDialog">*</button>
-            }
+            <button class="@GetClass()" @onclick="OpenDialog">@ShowLabel()</button>
         }
-
 
         <LabelDialog ShowDialog="@_showModal" Title="@Key">
             <p>This is the content of the modal dialog.</p>
@@ -63,8 +44,8 @@ else
     [Parameter]
     public string Key { get; set; }
 
-    private bool _noKey = false;
     private bool _showLink = false;
+    private bool _showNoKey = false;
     private bool _showModal = false;
     private bool _showTooltip = false;
 
@@ -77,40 +58,38 @@ else
         await Run(lambda);
     }
 
-    private string IsNoLabel()
+    private string InitialiseLabel()
     {
-        _noKey = false;
-        _showLink = config.IsLabelLink;
-
-        if (_showLink)
-        {
-            if (!labels.IsLabel(Key))
-                _noKey = true;
-        }
-
-        if (labels.IsTooltip(Key))
-            _showTooltip = true;
+        _showLink = config?.IsLabelLink ?? false;
+        _showNoKey = _showLink && (!labels?.IsLabel(Key) ?? false);
+        _showTooltip = labels?.IsTooltip(Key) ?? false;
         return "";
     }
 
     private string ShowLabel()
     {
         return
-            (_noKey ? "[" : "")
-            + labels.GetLabel(Key)
-            + (_noKey ? "]" : "")
+            (_showNoKey ? "[" : "")
+            + labels?.GetLabel(Key)
+            + (_showNoKey ? "]" : "")
             ;
     }
 
     private string? ShowToolTip()
     {
-        return labels.GetTooltip(Key);
+        return labels?.GetTooltip(Key);
     }
 
+    private string GetClass()
+    {
+        if (_showNoKey) return "label-nokey";
+        if (_showLink) return "label-link";
+        return "label";
+    }
 
     private void OpenDialog()
     {
-        _showModal = true;
+        _showModal = _showLink;
     }
 
 }
