@@ -48,9 +48,15 @@ namespace Backend.App.Labels.Ent
             return this.langCode == langCode && this.orgId == orgId;
         }
 
+        /**
+         * Is this label in the loaded language code?
+         */
         public bool IsLabel(string code)
         {
-            return labels.ContainsKey(code);
+            if (!labels.ContainsKey(code)) return false;
+            var label = labels[code];
+            if (label.LangCode != null) return false;
+            return true;
         }
 
         public string GetLabel(string code)

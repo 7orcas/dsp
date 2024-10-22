@@ -1,85 +1,73 @@
 ﻿@inherits LayoutComponentBase
 
-@using Backend.App.Labels
-@using Backend.App.Labels.Ent
-@using Backend.App.Config
-@using Backend.App.Config.Ent
-@using Blazor.Flags
-@inject LabelService LabelService
-@inject ConfigService ConfigService
-@inject NavigationManager Navigation
+@using Web.Data;
+@using Backend.App.Config;
+@using Backend.App.Config.Ent;
+@using Backend.App.Labels;
+@using Backend.App.Labels.Ent;
+
+@inject ClientState clientState;
+@inject NavigationManager navigation
 
 <div>
     @if (_isLoading)
     {
-        <p><em>Loading...</em></p>
+        <Loading />
     }
     else
     {
-        @labelMgr.GetLanguageCode()
-    }
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
 
-</div>
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
+            <main>
         
-        <div class="top-row px-4">
-            @if (!_isLoading)
-            {
-                <LanguageFlags />
+                <div class="top-row px-4">
+                    @if (!_isLoading)
+                    {
+                        <LanguageFlags 
+                            OnClick="ChangeLanguage" 
+                            CurrentLangCode="@clientState.appConfig.LangCode" 
+                        />
                 
-            }
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+                    }
+                    <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+                </div>
+
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
-
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
+        <div id="blazor-error-ui">
+            An unhandled error has occurred.
+            <a href="" class="reload">Reload</a>
+            <a class="dismiss">🗙</a>
+        </div>
+    }
 </div>
 
 
 @code {
-    private LabelManager labelMgr;
-    private List<LangCode> langCodes;
-    private AppConfig appConfig;
     public bool _isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        appConfig = await ConfigService.GetAppConfig("en", 0);
-        labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
-        langCodes = LabelManager.GetLanguageCodes();
+        await clientState.Initialise();
         _isLoading = false;
     }
 
     private async Task ChangeLanguage(string langCode)
     {
-        appConfig.LangCode = langCode;
-        labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
-        StateHasChanged();
-        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
-    }
+        if (clientState.appConfig.LangCode == langCode) return;
 
-    private Country GetCountryFlag(LangCode langCode)
-    {
-        switch (langCode.Code)
-        {
-            case "en": return Country.GB;
-            case "de": return Country.DE;
-            case "es": return Country.ES;
-            default: return Country.NZ;
-        }
+        await clientState.ChangeLanguage(langCode);
+        StateHasChanged();
+
+        //Not working
+        //navigation.NavigateTo(navigation.Uri, forceLoad: true);
     }
+  
 }

@@ -3,7 +3,6 @@ using Backend.App.Config;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Web.Client.Pages;
 using Web.Components;
 using Web.Components.Account;
 using Web.Data;
@@ -21,8 +20,9 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
-builder.Services.AddSingleton<ConfigService>();
-builder.Services.AddSingleton<LabelService>();
+builder.Services.AddScoped<ClientState>();
+builder.Services.AddScoped<IConfigService, ConfigService>();
+builder.Services.AddScoped<ILabelService, LabelService>();
 
 builder.Services.AddAuthentication(options =>
     {

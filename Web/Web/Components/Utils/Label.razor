@@ -1,44 +1,38 @@
-﻿
+﻿@inherits BasePage
+
 @using Backend.App.Labels
 @using Backend.App.Labels.Ent
 @using Backend.App.Config
 @using Backend.App.Config.Ent
 @using Web.Components.Utils
+@using Web.Data
 
-@inherits BasePage
-@inject LabelService LabelService
-@inject ConfigService ConfigService
+@inject ClientState clientState
 
-@if (_isLoading)
-{
-    <Loading />
-}
-else
-{
-    @InitialiseLabel()
+@InitialiseLabel()
 
-    <div>
-        @if (_showTooltip)
-        {
-            <div data-tooltip="@ShowToolTip()">
-                <button class="@GetClass()" @onclick="OpenDialog">@ShowLabel()</button>
-            </div>
-        }
-        else 
-        {
+<div>
+    @if (_showTooltip)
+    {
+        <div data-tooltip="@ShowToolTip()">
             <button class="@GetClass()" @onclick="OpenDialog">@ShowLabel()</button>
-        }
+        </div>
+    }
+    else 
+    {
+        <button class="@GetClass()" @onclick="OpenDialog">@ShowLabel()</button>
+    }
 
-        <LabelDialog ShowDialog="@_showModal" Title="@Key">
-            <p>This is the content of the modal dialog.</p>
-        </LabelDialog>
+    <LabelDialog ShowDialog="@_showModal" Title="@Key">
+        <p>This is the content of the modal dialog.</p>
+    </LabelDialog>
 
-    </div>
-}
+</div>
+
 
 @code {
-    private LabelManager? labels;
-    private AppConfig? config;
+    private LabelManager? labelMgr;
+    private AppConfig? appConfig;
 
     [Parameter]
     public string Key { get; set; }
@@ -50,18 +44,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Func<Task> lambda = async () => config = await ConfigService.GetAppConfig();
-        await Run(lambda);
-
-        lambda = async () => labels = await LabelService.GetLabelManager(config.LangCode, config.OrgId);
-        await Run(lambda);
+        appConfig = clientState.appConfig;
+        labelMgr = clientState.labelMgr;
     }
 
     private string InitialiseLabel()
     {
-        _showLink = config?.IsLabelLink ?? false;
-        _showNoKey = _showLink && (!labels?.IsLabel(Key) ?? false);
-        _showTooltip = labels?.IsTooltip(Key) ?? false;
+        _showLink = appConfig?.IsLabelLink ?? false;
+        _showNoKey = _showLink && (!labelMgr?.IsLabel(Key) ?? false);
+        _showTooltip = labelMgr?.IsTooltip(Key) ?? false;
         return "";
     }
 
@@ -69,14 +60,14 @@ else
     {
         return
             (_showNoKey ? "[" : "")
-            + labels?.GetLabel(Key)
+            + labelMgr?.GetLabel(Key)
             + (_showNoKey ? "]" : "")
             ;
     }
 
     private string? ShowToolTip()
     {
-        return labels?.GetTooltip(Key);
+        return labelMgr?.GetTooltip(Key);
     }
 
     private string GetClass()

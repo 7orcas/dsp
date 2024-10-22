@@ -1,0 +1,21 @@
+﻿
+.lang-flag-link {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+    font: inherit; 
+    cursor: pointer;
+}
+
+.lang-flag-link-current {
+    padding: 0;
+    margin: 0;
+    border: groove;
+    background-color: red;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+   
+}

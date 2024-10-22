@@ -3,8 +3,9 @@
 @using Backend.App.Config
 @using Backend.App.Config.Ent
 @using Blazor.Flags
-@inject LabelService LabelService
-@inject ConfigService ConfigService
+@using Web.Data
+
+@inject ClientState ClientState
 @inject NavigationManager Navigation
 
 <div>
@@ -17,7 +18,7 @@
         <div class="top-row px-4">
             @foreach (var langCode in @langCodes)
             {
-                <button class="lang-flag-link" @onclick='@(() => ChangeLanguage(langCode.Code))'>
+                <button class="@GetClass(langCode.Code)" @onclick='@(() => HandleClick(langCode.Code))'>
                     <CountryFlag Country="GetCountryFlag(langCode)" Size="FlagSize.Normal" />
                 </button>
             }
@@ -26,25 +27,26 @@
 </div>
 
 @code {
-    private LabelManager labelMgr;
     private List<LangCode> langCodes;
-    private AppConfig appConfig;
     public bool _isLoading = true;
+
+    [Parameter]
+    public EventCallback<string> OnClick { get; set; }
+
+    [Parameter]
+    public string CurrentLangCode { get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
-        appConfig = await ConfigService.GetAppConfig();
-        labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
         langCodes = LabelManager.GetLanguageCodes();
         _isLoading = false;
     }
 
-    private async Task ChangeLanguage(string langCode)
+
+    private async Task HandleClick(string langCode)
     {
-        appConfig.LangCode = langCode;
-        labelMgr = await LabelService.GetLabelManager(appConfig.LangCode, appConfig.OrgId);
-        StateHasChanged();
-        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        await OnClick.InvokeAsync(langCode);
     }
 
     private Country GetCountryFlag(LangCode langCode)
@@ -56,5 +58,11 @@
             case "es": return Country.ES;
             default: return Country.NZ;
         }
+    }
+
+    private string GetClass(string langCode)
+    {
+        if (langCode == CurrentLangCode) return "lang-flag-link-current";
+        return "lang-flag-link";
     }
 }

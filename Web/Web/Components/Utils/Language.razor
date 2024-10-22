@@ -1,13 +1,15 @@
 ﻿@page "/app/language"
 
 @inherits BasePage
-@inject LabelService LabelService
-@inject ConfigService ConfigService
+@inject ClientState clientState;
+@inject ILabelService labelService
 
 @using Backend.App.Labels
 @using Backend.App.Labels.Ent
 @using Backend.App.Config
 @using Backend.App.Config.Ent
+@using Web.Data;
+@using Web.Components.Layout
 
 <h3>Language</h3>
 
@@ -16,10 +18,14 @@
     <Loading />
 }
 else{
+    <LanguageFlags 
+        OnClick="ChangeLanguage"
+        CurrentLangCode="@currentLangCode" />
+
     <table class="table">
         <thead>
             <tr>
-                <th>Lang</th>
+                <th><Label Key="langCode" /></th>
                 <th>Org</th>
                 <th>Code</th>
                 <th>Label</th>
@@ -49,25 +55,29 @@ else{
 
 @code {
     private List<Backend.App.Labels.Ent.Label>? labels;
-    private LabelManager? labelMgr;
-    private AppConfig? config;
+    private string currentLangCode = "";
 
     protected override async Task OnInitializedAsync()
     {
-        Func<Task> lambda = async () => config = await ConfigService.GetAppConfig();
-        await Run(lambda);
-
-        lambda = async () => labels = await LabelService.GetLabels(config.LangCode);
-        await Run(lambda);
-
-        lambda = async () => labelMgr = await LabelService.GetLabelManager(config.LangCode, config.OrgId);
+        currentLangCode = clientState.appConfig.LangCode;
+        Func<Task> lambda = async () => labels = await labelService.GetLabels(currentLangCode);
         await Run(lambda);
     }
 
+    private async Task ChangeLanguage(string langCode)
+    {
+        if (langCode == currentLangCode) return;
+        currentLangCode = langCode;
+
+        Func<Task> lambda = async () => labels = await labelService.GetLabels(currentLangCode);
+        await Run(lambda);
+    }
+
+    //ToDo
     private void Update(Backend.App.Labels.Ent.Label label)
     {
-        labelMgr.UpdateLabel(label);
+        if (label.LangCode == clientState.appConfig.LangCode) 
+            clientState.labelMgr.UpdateLabel(label);
         
     }
-
 }
