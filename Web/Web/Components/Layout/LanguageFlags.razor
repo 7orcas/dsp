@@ -15,12 +15,12 @@
     }
     else
     {
-        <div class="top-row px-4">
+        <div class="lang-flags top-row px-1">
             @foreach (var langCode in @langCodes)
             {
-                <button class="@GetClass(langCode.Code)" @onclick='@(() => HandleClick(langCode.Code))'>
+                <div class="@GetClass(langCode.Code)" @onclick='@(() => HandleClick(langCode.Code))'>
                     <CountryFlag Country="GetCountryFlag(langCode)" Size="FlagSize.Normal" />
-                </button>
+                </div>
             }
         </div>
     }
@@ -34,7 +34,7 @@
     public EventCallback<string> OnClick { get; set; }
 
     [Parameter]
-    public string CurrentLangCode { get; set; }
+    public string selectedLangCodes { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -62,7 +62,11 @@
 
     private string GetClass(string langCode)
     {
-        if (langCode == CurrentLangCode) return "lang-flag-link-current";
+        if (!string.IsNullOrEmpty(langCode) 
+            && !string.IsNullOrEmpty(selectedLangCodes)
+            && selectedLangCodes.Contains(langCode))
+            return "lang-flag-link-current";
+
         return "lang-flag-link";
     }
 }

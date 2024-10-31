@@ -24,7 +24,7 @@
     }
 
     <LabelDialog ShowDialog="@_showModal" Title="@Key">
-        <p>This is the content of the modal dialog.</p>
+        <p>@ShowLabelText()</p>
     </LabelDialog>
 
 </div>
@@ -63,6 +63,13 @@
             + labelMgr?.GetLabel(Key)
             + (_showNoKey ? "]" : "")
             ;
+    }
+
+    private string ShowLabelText()
+    {
+        if (labelMgr == null) return "No labelMgr";
+        if (!labelMgr.IsLabel(Key)) return "No Key";
+        return labelMgr.GetLabel(Key);
     }
 
     private string? ShowToolTip()

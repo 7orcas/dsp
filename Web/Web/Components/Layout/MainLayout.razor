@@ -9,6 +9,16 @@
 @inject ClientState clientState;
 @inject NavigationManager navigation
 
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
 <div>
     @if (_isLoading)
     {
@@ -16,19 +26,19 @@
     }
     else
     {
-        <div class="page">
+         <div class="page">
             <div class="sidebar">
                 <NavMenu />
             </div>
 
             <main>
         
-                <div class="top-row px-4">
+                <div class="top-row px-1">
                     @if (!_isLoading)
                     {
                         <LanguageFlags 
                             OnClick="ChangeLanguage" 
-                            CurrentLangCode="@clientState.appConfig.LangCode" 
+                            selectedLangCodes="@clientState.appConfig.LangCode" 
                         />
                 
                     }
@@ -45,18 +55,39 @@
             An unhandled error has occurred.
             <a href="" class="reload">Reload</a>
             <a class="dismiss">🗙</a>
-        </div>
+        </div> 
+
+       @*  <MudLayout>
+            <MudAppBar Elevation="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+                <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+                <MudSpacer />
+                <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+            </MudAppBar>
+            <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+                <NavMenu />
+            </MudDrawer>
+            <MudMainContent>
+                @Body
+            </MudMainContent>
+        </MudLayout> *@
     }
 </div>
 
 
 @code {
     public bool _isLoading = true;
+    bool _drawerOpen = true;
 
     protected override async Task OnInitializedAsync()
     {
         await clientState.Initialise();
         _isLoading = false;
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
     }
 
     private async Task ChangeLanguage(string langCode)

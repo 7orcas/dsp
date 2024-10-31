@@ -46,6 +46,36 @@ namespace Backend.App
             });
         }
 
+        static public async Task<bool> Execute(string sqlString)
+        {
+            return await Task.Run(() =>
+            {
+
+                //Thread.Sleep(400);
+                var connectionString = "Server=np:localhost;Database=dsp;TrustServerCertificate=True;Authentication=Active Directory Integrated;";
+
+                SqlConnection connection = null;
+                try
+                {
+                    connection = new SqlConnection(connectionString);
+                    connection.Open();
+                    var command = new SqlCommand(sqlString, connection);
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message); //TODO - LogMe
+                    throw;
+                }
+                finally
+                {
+                    if (connection != null) connection.Close();
+                }
+
+                return true;
+            });
+        }
+
         static public string AddBaseEntity (string table)
         {
             return AddBaseEntity(table, "b");

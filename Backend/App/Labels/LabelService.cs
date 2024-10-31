@@ -1,6 +1,7 @@
 ﻿using Backend.App.Labels.Ent;
 using Backend.Modules._Base;
 using Microsoft.Data.SqlClient;
+using System.Security.Cryptography;
 
 namespace Backend.App.Labels
 {
@@ -33,7 +34,7 @@ namespace Backend.App.Labels
             return _labelManager;
         }
 
-        public async Task<List<Label>> GetLabels(string langCode)
+        public async Task<List<LangLabel>> GetLabels(string langCode)
         {
             var list = await GetLabelList(langCode, null);
             foreach (var label in list)
@@ -42,19 +43,19 @@ namespace Backend.App.Labels
             return list;
         }
 
-        private async Task<List<Label>> GetLabelList(string langCode, int? orgId)
+        private async Task<List<LangLabel>> GetLabelList(string langCode, int? orgId)
         {
-            string sql = "SELECT l.* FROM App.Label l "
+            string sql = "SELECT l.* FROM " + C.T_LABEL + " l "
                     + "WHERE l.Lang = '" + langCode + "' ";
 
             if (orgId.HasValue) 
                 sql += "AND l._OrgId = " + orgId;
 
             //Step 1: get labels for passed in lang code and org
-            var list = new List<Label>();
+            var list = new List<LangLabel>();
             await Sql.Run(sql,
                     r => {
-                        var m = ReadEntity<Label>(r);
+                        var m = ReadEntity<LangLabel>(r);
                         list.Add(m);
                     }
             );
@@ -63,7 +64,7 @@ namespace Backend.App.Labels
 
         }
 
-        private T ReadEntity<T>(SqlDataReader r) where T: Label, new()
+        private T ReadEntity<T>(SqlDataReader r) where T: LangLabel, new()
         {
             var entity = new T();
             entity._OrgId = GetIdNull(r, "_OrgId");
@@ -76,5 +77,31 @@ namespace Backend.App.Labels
 
             return entity;
         }
+        public async Task<bool> SaveLabel(LangLabel label)
+        {
+            string sql = "";
+
+            if (label.Id > 0)
+                sql = "UPDATE " + C.T_LABEL + " SET "
+                    + (label._OrgId != null? "_OrgId = " + label._OrgId + ", " : "")
+                    + (label.Tooltip != null ? "Tooltip = '" + label.Tooltip + "', " : "")
+                    + "Descr = '" + label.Description + "' "
+                    +"WHERE id = " + label.Id;
+            else
+                sql = "INSERT INTO " + C.T_LABEL + " "
+                    + "(_OrgId, Code, Descr, Tooltip) "
+                    + " VALUES ("
+                    + label._OrgId + ","
+                    + "'" + label.Code + "',"
+                    + "'" + label.Description + "',"
+                    + "'" + label.Tooltip + "')";
+
+
+            //Step 1: get labels for passed in lang code and org
+            var list = new List<LangLabel>();
+            await Sql.Execute(sql);
+            return true;
+        }
+
     }
 }

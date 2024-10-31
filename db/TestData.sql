@@ -45,6 +45,11 @@ INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('en', 'no', 'No') ;
 INSERT INTO App.Label (Lang, Code,	Descr, Tooltip) VALUES ('en', 'langCode', 'Lang', 'Language Code') ;
 INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('de', 'langCode', 'Sprache') ;
 
+INSERT INTO App.Label (Lang, Code,	Descr, Tooltip) VALUES ('en', 'Org', 'Org', 'Organisation Id') ;
+INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('en', 'Code', 'Code') ;
+INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('en', 'Label', 'Label') ;
+INSERT INTO App.Label (Lang, Code,	Descr) VALUES ('en', 'Tooltip', 'Tooltip') ;
+
 
 select * from App.Label
 select * from App.BaseEntity

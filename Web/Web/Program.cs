@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Web.Components;
 using Web.Components.Account;
 using Web.Data;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddMudServices();
 builder.Services.AddLogging(); // Ensure logging is added
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

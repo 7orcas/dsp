@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Security.Cryptography;
+﻿using Backend.Modules._Base;
 
 namespace Backend.App.Labels.Ent
 {
     public class LabelManager
     {
         static private List<LangCode> langCodes;
-        private Dictionary<string, Label> labels;
+        private Dictionary<string, LangLabel> labels;
         private string langCode;
         private int orgId;
 
@@ -15,7 +14,7 @@ namespace Backend.App.Labels.Ent
          * Main Constructor
          * Requires language code and organisation id
          */
-        public LabelManager(List<Label> list, string langCode, int orgId)
+        public LabelManager(List<LangLabel> list, string langCode, int orgId)
         {
             if (langCodes == null) 
                 langCodes = SetupLanguageCodes();
@@ -28,7 +27,7 @@ namespace Backend.App.Labels.Ent
         /**
          * Append default labels, ie there maybe missing labels in the constructor list
          */
-        public void AppendList(List<Label> list, string? langCode)
+        public void AppendList(List<LangLabel> list, string? langCode)
         {
             foreach (var label in list)
             {
@@ -65,11 +64,14 @@ namespace Backend.App.Labels.Ent
             return code;
         }
 
-        public void UpdateLabel(Label label)
+        public void UpdateLabel(LangLabel label)
         {
-            labels[label.Code] = label;
+            if (!labels.ContainsKey(label.Code)) return;
+            var l = labels[label.Code];
+            if (U.IsSameOrg(l._OrgId, label._OrgId))
+                labels[label.Code] = label;
         }
-
+        
         public bool IsTooltip(string code)
         {
             return GetTooltip(code) != null;

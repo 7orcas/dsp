@@ -1,25 +1,36 @@
 ﻿@page "/test"
 
 @using Web.Components.Utils
+@inject IDialogService DialogService
 
 <PageTitle>TEST</PageTitle>
 
 
 <br />
-<Label Key="123"/>
+<MudText Typo="Typo.h5" GutterBottom="true">
+    <Label Key="123"/>
+</MudText>
 <br />
 <Label Key="yes" />
 <br />
 <Label Key="no" />
 
 <br />
-<button class="btn btn-primary" @onclick="OpenDialog">Open ModalX</button>
+<MudButton 
+    class="btn btn-primary" 
+    Color="Color.Primary" 
+    Variant="Variant.Filled"
+    @onclick="OpenDialog">Open ModalX</MudButton>
 
 
 
 <LabelDialog ShowDialog="@showModal" Title="My Modal">
     <p>This is the content of the modal dialog.</p>
 </LabelDialog>
+
+<MudButton @onclick="OpenDialogAsync" Variant="Variant.Outlined" Color="Color.Primary">
+    Open Mud Dialog
+</MudButton>
 
 
 @code {
@@ -28,5 +39,23 @@
     private void OpenDialog()
     {
         showModal = true;
+    }
+
+    private Task OpenDialogAsync()
+    {
+        var parameters = new DialogParameters ()
+            {
+                {"Title", "this is a title" },
+                {"Content", "here is the content" }
+            };
+
+        var options = new DialogOptions { 
+            Position = DialogPosition.TopCenter,
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        };
+
+        return DialogService.ShowAsync<Dialog>("Simple Dialog", parameters, options);
     }
 }

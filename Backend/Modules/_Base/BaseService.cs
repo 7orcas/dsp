@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Backend.Modules._Base
 {
-    public class BaseService
+    public class BaseService 
     {
         public T ReadBaseEntity<T> (SqlDataReader r) where T : _BaseEntity, new()
         {

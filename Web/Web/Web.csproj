@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="7.15.0" />
     <ProjectReference Include="..\..\Backend\Backend.csproj" />
     <ProjectReference Include="..\Web.Client\Web.Client.csproj" />
     <PackageReference Include="Blazor.Flags" Version="1.0.0.1" />

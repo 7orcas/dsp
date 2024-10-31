@@ -3,7 +3,9 @@
 @inherits BasePage
 @inject ClientState clientState;
 @inject ILabelService labelService
+@inject ISnackbar Snackbar
 
+@using Backend.Modules._Base
 @using Backend.App.Labels
 @using Backend.App.Labels.Ent
 @using Backend.App.Config
@@ -11,73 +13,200 @@
 @using Web.Data;
 @using Web.Components.Layout
 
-<h3>Language</h3>
+<div style="display: flex; align-items: center;">
+    <h3>Language</h3>
+    <LanguageFlags 
+        OnClick="SelectLangCode"
+        selectedLangCodes="@langCodes" />
+</div>
 
 @if (labels == null)
 {
     <Loading />
 }
 else{
-    <LanguageFlags 
-        OnClick="ChangeLanguage"
-        CurrentLangCode="@currentLangCode" />
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th><Label Key="langCode" /></th>
-                <th>Org</th>
-                <th>Code</th>
-                <th>Label</th>
-                <th>ToolTip</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var label in labels)
-            {
-            <tr>
-                    <td>@label.LangCode</td>
-                    <td>@label._OrgId</td>
-                    <td>@label.Code</td>
-                    <td><InputText id="description" @bind-Value="label.Description" /></td>
-                    <td><InputText id="tooltip" @bind-Value="label.Tooltip" /></td>
-                    <td>
-                        <button @onclick="() => Update(label)">Save</button>
-                    </td>
-            </tr>
-            }
-        </tbody>
-    </table>
-    
+    <MudTable 
+        Items="@labels"
+        FixedHeader="@fixed_header"
+        Breakpoint="Breakpoint.Sm" 
+        LoadingProgressColor="Color.Info"
+        Dense="@dense" 
+        Hover="@hover" 
+        ReadOnly="@ronly" 
+        CanCancelEdit="@canCancelEdit" 
+        Filter="new Func<LangLabel,bool>(FilterFunc)"
+        @bind-SelectedItem="selectedItem1" 
+        SortLabel="Sort By" 
+        CommitEditTooltip="Commit Edit"
+        RowEditPreview="BackupItem" 
+        RowEditCancel="ResetItemToOriginalValues"
+        RowEditCommit="ItemHasBeenCommitted" 
+        IsEditRowSwitchingBlocked="@blockSwitch" 
+        ApplyButtonPosition="@applyButtonPosition" 
+        EditButtonPosition="@editButtonPosition" 
+        EditTrigger="@editTrigger">
+
+        <ToolBarContent>
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <ColGroup>
+            <col style="width:30px;" />
+            <col style="width:50px;" />
+            <col style="width:80px;" />
+            <col style="width:40%;" />
+            <col style="width:40%;" />
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><Label Key="langCode" /></MudTh>
+            <MudTh><Label Key="Org" /></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<LangLabel, object>(x=>x.Code)"><Label Key="Code" /></MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<LangLabel, object>(x=>x.Description)"><Label Key="Label" /></MudTableSortLabel></MudTh>
+            <MudTh><Label Key="Tooltip" /></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="LangCode">@context.LangCode</MudTd>
+            <MudTd DataLabel="_OrgId">@context._OrgId</MudTd>
+            <MudTd DataLabel="Code">@context.Code</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Tooltip">@context.Tooltip</MudTd>
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd DataLabel="LangCode">@context.LangCode</MudTd> <!-- ReadOnly -->
+            <MudTd DataLabel="_OrgId"><MudTextField @bind-Value="context._OrgId" /></MudTd>
+            <MudTd DataLabel="Code">@context.Code</MudTd>
+            <MudTd DataLabel="Description"><MudTextField @bind-Value="context.Description" Required /></MudTd>
+            <MudTd DataLabel="Tooltip"><MudTextField @bind-Value="context.Tooltip" /></MudTd>
+        </RowEditingTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{20, 20}" />
+        </PagerContent>
+    </MudTable>
 }
 
 
 @code {
-    private List<Backend.App.Labels.Ent.Label>? labels;
-    private string currentLangCode = "";
+    private string langCodes = "";
+    private List<LangLabel> labels = new List<LangLabel>();
+    private List<string> selectedLangCodes = new List<string>();
+    private bool isMultiLangCodes = LabelManager.GetLanguageCodes().Count() > 1;
+
+    private List<string> editEvents = new();
+    bool fixed_header = true;
+    private bool dense = true;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private LangLabel selectedItem1 = null;
+    private LangLabel elementBeforeEdit;
+    private HashSet<LangLabel> selectedItems1 = new HashSet<LangLabel>();
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.RowClick;
 
     protected override async Task OnInitializedAsync()
     {
-        currentLangCode = clientState.appConfig.LangCode;
-        Func<Task> lambda = async () => labels = await labelService.GetLabels(currentLangCode);
-        await Run(lambda);
+        await SelectLangCode(clientState.appConfig.LangCode);
     }
 
-    private async Task ChangeLanguage(string langCode)
+    private async Task SelectLangCode(string langCode)
     {
-        if (langCode == currentLangCode) return;
-        currentLangCode = langCode;
+        if ((selectedLangCodes.Count() > 0 && !isMultiLangCodes)
+            || string.IsNullOrEmpty(langCode)) return;
 
-        Func<Task> lambda = async () => labels = await labelService.GetLabels(currentLangCode);
-        await Run(lambda);
+        if (selectedLangCodes.Contains(langCode)) 
+            selectedLangCodes.Remove(langCode);
+        else 
+            selectedLangCodes.Add(langCode);
+
+        langCodes = "";
+        labels.Clear();
+
+        foreach (var l in selectedLangCodes)
+        {
+            langCodes += l + " ";
+            var labelsX = new List<LangLabel>();
+
+            Func<Task> lambda = async () => labelsX = await labelService.GetLabels(l);
+            await Run(lambda);
+            labels.AddRange(labelsX);
+        }
+
+        labels.Sort((a, b) =>
+        {
+            var x = a.Code.CompareTo(b.Code);
+            if (x != 0) return x;
+            x = a.LangCode.CompareTo(b.LangCode);
+            if (x != 0) return x;
+            return U.CompareOrg(a._OrgId, b._OrgId);
+        });
     }
 
-    //ToDo
-    private void Update(Backend.App.Labels.Ent.Label label)
+
+    private void RowEditPreview()
     {
-        if (label.LangCode == clientState.appConfig.LangCode) 
-            clientState.labelMgr.UpdateLabel(label);
-        
+
+    }
+
+    private void ClearEventLog()
+    {
+        editEvents.Clear();
+    }
+
+    private void AddEditionEvent(string message)
+    {
+        editEvents.Add(message);
+        StateHasChanged();
+    }
+
+    private void BackupItem(object element)
+    {
+        var row = (LangLabel)element;
+        elementBeforeEdit = new()
+            {
+                LangCode = row.LangCode,
+                _OrgId = row._OrgId,
+                Code = row.Code,
+                Description = row.Description,
+                Tooltip = row.Tooltip
+            };
+        AddEditionEvent($"RowEditPreview event: made a backup of Element {row.Code}");
+    }
+
+    private void ItemHasBeenCommitted(object element)
+    {
+        var row = (LangLabel)element;
+        var result = labelService.SaveLabel(row);
+        if (row.LangCode == clientState.appConfig.LangCode)
+            clientState.labelMgr.UpdateLabel(row);
+
+        AddEditionEvent($"RowEditCommit event: Changes to Element {row.Code} committed");
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        var row = (LangLabel)element;
+        row.LangCode = elementBeforeEdit.LangCode;
+        row._OrgId = elementBeforeEdit._OrgId;
+        row.Code = elementBeforeEdit.Code;
+        row.Description = elementBeforeEdit.Description;
+        row.Tooltip = elementBeforeEdit.Tooltip;
+        AddEditionEvent($"RowEditCancel event: Editing of Element {row.Code} canceled");
+    }
+
+    private bool FilterFunc(LangLabel element)
+    {
+        var row = (LangLabel)element;
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (row.Code.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (row.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{row.Code} {row.Description}".Contains(searchString))
+            return true;
+        return false;
     }
 }

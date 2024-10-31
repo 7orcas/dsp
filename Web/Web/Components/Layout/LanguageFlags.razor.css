@@ -1,4 +1,8 @@
 ﻿
+.lang-flags {
+    display: flex;
+}
+
 .lang-flag-link {
     padding: 0;
     margin: 0;
@@ -9,13 +13,12 @@
     cursor: pointer;
 }
 
-.lang-flag-link-current {
+.lang-flag-link-selected {
     padding: 0;
     margin: 0;
     border: groove;
-    background-color: red;
+    background-color: transparent;
     color: inherit;
     font: inherit;
     cursor: pointer;
-   
 }

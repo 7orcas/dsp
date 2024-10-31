@@ -2,9 +2,10 @@
 
 namespace Backend.App.Labels
 {
-    public interface ILabelService
+    public interface ILabelService 
     {
         Task<LabelManager> GetLabelManager(string langCode, int orgId);
-        Task<List<Label>> GetLabels(string langCode);
+        Task<List<LangLabel>> GetLabels(string langCode);
+        Task<bool> SaveLabel(LangLabel label);
     }
 }
