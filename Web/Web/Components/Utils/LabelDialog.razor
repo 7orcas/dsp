@@ -1,10 +1,19 @@
-﻿@if (ShowDialog)
+﻿@using Backend.App.Labels
+@using Backend.App.Labels.Ent
+@using Backend.App.Config
+@using Backend.App.Config.Ent
+@using Web.Components.Utils
+@using Web.Data
+
+@inject ILabelService labelService
+
+@if (ShowDialog)
 {
+    <!--
     <div class="modal fade show d-block" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@Title</h5>
                     <button type="button" class="close" @onclick="CloseDialog" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -18,6 +27,37 @@
             </div>
         </div>
     </div>
+    -->
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudPaper Class="pa-4">
+                <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+
+                    <h5 class="modal-title">@Title</h5>
+
+                    <MudTextField T="string" Label="Label" @ref="_label" Required="true" RequiredError="Label is required!" />
+                    <MudTextField T="string" Label="Tooltip" @ref="_tooltip" />
+                    <MudTextField T="int" Label="Org" @ref="_org" />
+
+                    <div class="d-flex align-center justify-space-between">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto" OnClick="Save">Save</MudButton>
+                    </div>
+
+                </MudForm>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+                @foreach (var error in errors)
+                {
+                    <MudText Color="@Color.Error">@error</MudText>
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+
 }
 
 @code {
@@ -25,8 +65,48 @@
     [Parameter] public string Title { get; set; }
     [Parameter] public RenderFragment ChildContent { get; set; }
 
+    [Inject]
+    protected ClientState clientState { get; set; }
+
+    MudTextField<string> _label;
+    MudTextField<string> _tooltip;
+    MudTextField<int> _org;
+
     private void CloseDialog()
     {
         ShowDialog = false;
     }
+
+    bool success;
+    string[] errors = { };
+    MudForm form;
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (success)
+        {
+            int? org = _org.Value;
+            if (org == 0) org = null;
+
+            LangLabel label = new LangLabel
+            {
+                Id = 0,
+                LangCode = clientState.appConfig.LangCode,
+                Code = Title,
+                Description = _label.Value,
+                Tooltip = _tooltip.Value,
+                _OrgId = org
+            };
+
+            var result = labelService.SaveLabel(label);
+            clientState.labelMgr.UpdateLabel(label);
+        }
+        else
+        {
+            Console.WriteLine("Form is invalid.");
+        }
+    }
+   
+
 }

@@ -71,7 +71,20 @@ namespace Backend.App.Labels.Ent
             if (U.IsSameOrg(l._OrgId, label._OrgId))
                 labels[label.Code] = label;
         }
-        
+
+        public bool InsertLabel(LangLabel label)
+        {
+            LangLabel currLabel = null;
+            if (labels.ContainsKey(label.Code))
+                currLabel = labels[label.Code];
+
+            if (currLabel != null && U.IsSameOrg(currLabel._OrgId, label._OrgId))
+                return false;
+
+            labels[label.Code] = label;
+            return true;
+        }
+
         public bool IsTooltip(string code)
         {
             return GetTooltip(code) != null;
@@ -130,6 +143,13 @@ namespace Backend.App.Labels.Ent
                 Id = 3,
                 Code = "es",
                 Description = "Español"
+            });
+
+            list.Add(new LangCode
+            {
+                Id = 3,
+                Code = "it",
+                Description = "Italian"
             });
 
             return list;

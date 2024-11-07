@@ -14,10 +14,11 @@
 @using Web.Components.Layout
 
 <div style="display: flex; align-items: center;">
-    <h3>Language</h3>
+    <h3>@Label("Language")</h3>
     <LanguageFlags 
         OnClick="SelectLangCode"
         selectedLangCodes="@langCodes" />
+    <MudSwitch @bind-Value="ronly" Color="Color.Tertiary">@Label("AttrRO")</MudSwitch>
 </div>
 
 @if (labels == null)
@@ -58,7 +59,7 @@ else{
             <col style="width:40%;" />
         </ColGroup>
         <HeaderContent>
-            <MudTh><Label Key="langCode" /></MudTh>
+            <MudTh><Label Key="LangCode" /></MudTh>
             <MudTh><Label Key="Org" /></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<LangLabel, object>(x=>x.Code)"><Label Key="Code" /></MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<LangLabel, object>(x=>x.Description)"><Label Key="Label" /></MudTableSortLabel></MudTh>
@@ -95,7 +96,7 @@ else{
     bool fixed_header = true;
     private bool dense = true;
     private bool hover = true;
-    private bool ronly = false;
+    private bool ronly = true;
     private bool canCancelEdit = true;
     private bool blockSwitch = false;
     private string searchString = "";
@@ -126,7 +127,7 @@ else{
 
         foreach (var l in selectedLangCodes)
         {
-            langCodes += l + " ";
+            if (isMultiLangCodes) langCodes += l + " ";
             var labelsX = new List<LangLabel>();
 
             Func<Task> lambda = async () => labelsX = await labelService.GetLabels(l);

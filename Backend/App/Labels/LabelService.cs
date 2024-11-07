@@ -83,18 +83,20 @@ namespace Backend.App.Labels
 
             if (label.Id > 0)
                 sql = "UPDATE " + C.T_LABEL + " SET "
-                    + (label._OrgId != null? "_OrgId = " + label._OrgId + ", " : "")
+                    + (label._OrgId != null ? "_OrgId = " + label._OrgId + ", " : "")
                     + (label.Tooltip != null ? "Tooltip = '" + label.Tooltip + "', " : "")
                     + "Descr = '" + label.Description + "' "
-                    +"WHERE id = " + label.Id;
+                    + "WHERE id = " + label.Id;
             else
                 sql = "INSERT INTO " + C.T_LABEL + " "
-                    + "(_OrgId, Code, Descr, Tooltip) "
+                    + "(_OrgId, Lang, Code, Descr, Tooltip) "
                     + " VALUES ("
-                    + label._OrgId + ","
+                    + (label._OrgId != null ? "" + label._OrgId + "," : "NULL,")
+                    + "'" + label.LangCode + "',"
                     + "'" + label.Code + "',"
                     + "'" + label.Description + "',"
-                    + "'" + label.Tooltip + "')";
+                    + (label.Tooltip != null ? "'" + label.Tooltip + "'" : "NULL")
+                    + ")";
 
 
             //Step 1: get labels for passed in lang code and org
