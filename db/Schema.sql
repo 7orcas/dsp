@@ -35,7 +35,8 @@ CREATE TABLE App.Label (
 	Tooltip    NVARCHAR (MAX)  NULL,
 	Encoded    NVARCHAR (MAX)  NULL,
 	Updated    DATETIME        NOT NULL DEFAULT GETDATE(),
-	FOREIGN KEY (_OrgId) REFERENCES App.Org(Id)
+	FOREIGN KEY (_OrgId) REFERENCES App.Org(Id),
+	CONSTRAINT Lable_Code UNIQUE (Lang, Code, _OrgId)
 )
 
 
