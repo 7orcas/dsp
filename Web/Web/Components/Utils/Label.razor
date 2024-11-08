@@ -23,9 +23,14 @@
         <button class="@GetClass()" @onclick="OpenDialog">@ShowLabel()</button>
     }
 
-    <LabelDialog ShowDialog="@_showModal" Title="@Key">
-        <p>@ShowLabelText()</p>
-    </LabelDialog>
+    @if (_showModal)
+    {
+        <LabelDialog 
+            ShowDialog="@_showModal" 
+            Title="@Key"
+            OnParameterChanged="HandleShowChanged">
+        </LabelDialog>
+    }
 
 </div>
 
@@ -89,4 +94,8 @@
         _showModal = _showLink;
     }
 
+    private void HandleShowChanged(string newValue)
+    {
+        _showModal = false;
+    }
 }

@@ -64,6 +64,12 @@ namespace Backend.App.Labels.Ent
             return code;
         }
 
+        public LangLabel GetLabelObject(string code)
+        {
+            if (labels.ContainsKey(code)) return labels[code];
+            return null;
+        }
+
         public void UpdateLabel(LangLabel label)
         {
             if (!labels.ContainsKey(label.Code)) return;

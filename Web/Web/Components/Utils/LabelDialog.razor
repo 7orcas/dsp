@@ -5,59 +5,35 @@
 @using Web.Components.Utils
 @using Web.Data
 
-@inject ILabelService labelService
+@inject ILabelService labelService;
 
 @if (ShowDialog)
 {
-    <!--
-    <div class="modal fade show d-block" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" @onclick="CloseDialog" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    @ChildContent
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    -->
     <MudGrid>
         <MudItem xs="12" sm="7">
-            <MudPaper Class="pa-4">
+            <MudPaper Class="pa-4" style="background-color: #f2f2f2;  border: 1px solid black;">
                 <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-
-                    <h5 class="modal-title">@Title</h5>
+                    <div class="label-key">
+                        <Label Key="Code" />:&nbsp; 
+                        <div>@Title</div>
+                    </div>
+                    <div class="label-langcode">
+                        <Label Key="LangCode" />:&nbsp;
+                        <div>@clientState.appConfig.LangCode</div>
+                    </div>
 
                     <MudTextField T="string" Label="Label" @ref="_label" Required="true" RequiredError="Label is required!" />
                     <MudTextField T="string" Label="Tooltip" @ref="_tooltip" />
                     <MudTextField T="int" Label="Org" @ref="_org" />
 
-                    <div class="d-flex align-center justify-space-between">
+                    <div class="d-flex align-right label-buttons">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto" OnClick="Save">Save</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="CloseDialog" style="margin-left: 10px">Cancel</MudButton>
                     </div>
-
                 </MudForm>
             </MudPaper>
         </MudItem>
-        <MudItem xs="12" sm="5">
-            <MudPaper Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
-                @foreach (var error in errors)
-                {
-                    <MudText Color="@Color.Error">@error</MudText>
-                }
-            </MudPaper>
-        </MudItem>
     </MudGrid>
-
-
 }
 
 @code {
@@ -65,21 +41,44 @@
     [Parameter] public string Title { get; set; }
     [Parameter] public RenderFragment ChildContent { get; set; }
 
+    [Parameter]
+    public EventCallback<string> OnParameterChanged { get; set; }
+
     [Inject]
     protected ClientState clientState { get; set; }
 
+    bool success;
+    string[] errors = { };
+    MudForm form;
     MudTextField<string> _label;
     MudTextField<string> _tooltip;
     MudTextField<int> _org;
+    LangLabel langLabel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        langLabel = clientState.labelMgr.GetLabelObject(Title);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && langLabel != null)
+        {
+            _label.Value = langLabel.Description;
+            StateHasChanged(); // Ensure the component re-renders to reflect the updated value
+        }
+    }
 
     private void CloseDialog()
     {
         ShowDialog = false;
     }
 
-    bool success;
-    string[] errors = { };
-    MudForm form;
+    private async Task ChangeParameter()
+    {
+        var newValue = "close";
+        await OnParameterChanged.InvokeAsync(newValue);
+    }
 
     private async Task Save()
     {
