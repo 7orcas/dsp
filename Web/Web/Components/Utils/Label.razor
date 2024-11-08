@@ -26,10 +26,8 @@
     @if (_showModal)
     {
         <LabelDialog 
-            ShowDialog="@_showModal" 
-            Title="@Key"
-            OnParameterChanged="HandleShowChanged">
-        </LabelDialog>
+            LangKey="@Key"
+            OnParameterChanged="HandleShowChanged" />
     }
 
 </div>
@@ -91,7 +89,8 @@
 
     private void OpenDialog()
     {
-        _showModal = _showLink;
+        if (_showModal) _showModal = false;
+        else _showModal = _showLink;
     }
 
     private void HandleShowChanged(string newValue)

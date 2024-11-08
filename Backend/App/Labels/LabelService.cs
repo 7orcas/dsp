@@ -83,8 +83,8 @@ namespace Backend.App.Labels
 
             if (label.Id > 0)
                 sql = "UPDATE " + C.T_LABEL + " SET "
-                    + (label._OrgId != null ? "_OrgId = " + label._OrgId + ", " : "")
-                    + (label.Tooltip != null ? "Tooltip = '" + label.Tooltip + "', " : "")
+                    + (label._OrgId != null ? "_OrgId = " + label._OrgId + "" : "_OrgId = NULL") + ", "
+                    + (label.Tooltip != null ? "Tooltip = '" + label.Tooltip + "'" : "Tooltip = NULL" ) + ", "
                     + "Descr = '" + label.Description + "' "
                     + "WHERE id = " + label.Id;
             else
